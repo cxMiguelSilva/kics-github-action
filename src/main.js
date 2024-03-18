@@ -5,13 +5,11 @@ const github = require("@actions/github");
 const io = require("@actions/io");
 const filepath = require('path');
 const fs = require("fs");
-const yaml = require('js-yaml');
-const HCL = require("js-hcl-parser")
-const toml = require('@iarna/toml');
 
 function readJSON(filename) {
-    const rawData = fs.readFileSync(filename);
-    return JSON.parse(rawData.toString());
+    const rawdata = fs.readFileSync(filename);
+    const parsedJSON = JSON.parse(rawdata.toString());
+    return parsedJSON;
 }
 
 function cleanupOutput(resultsJSONFile, outputFormats) {
@@ -20,18 +18,7 @@ function cleanupOutput(resultsJSONFile, outputFormats) {
     }
 }
 
-async function processOutputPath(output, configPath) {
-    let resultsFileName = '';
-    if (configPath !== '' ) {
-
-        [config_type, content] = await fileAnalyzer(configPath);
-
-        if (config_type !== '') {
-            output = content["output-path"] || output;
-            resultsFileName = content["output-name"] || '';
-        }
-    }
-
+function processOutputPath(output) {
     if (output === '') {
         return {
             path: "./",
@@ -39,68 +26,9 @@ async function processOutputPath(output, configPath) {
         }
     }
 
-    if (resultsFileName === '') {
-        resultsFileName = filepath.join(output, "/results.json")
-    } else {
-        resultsFileName = filepath.join(output, resultsFileName);
-    }
-
     return {
         path: output,
-        resultsJSONFile: resultsFileName
-    }
-}
-
-function readFileContent(filePath) {
-    try {
-        // read file content
-        const stats = fs.statSync('./'+filePath); // Use fs.statSync to get file stats synchronously
-        if (!stats.isFile()) {
-            throw new Error('Provided path is not a file.');
-        }
-        const data = fs.readFileSync('./'+filePath, 'utf8'); // Use fs.readFileSync to read file content synchronously
-        return data;
-    } catch (error) {
-        console.error('Error reading file:', error);
-        return ''; // Return empty string or handle the error as needed
-    }
-}
-async function fileAnalyzer(filePath) {
-    const fileContent = await readFileContent(filePath);
-    let temp = {};
-
-    if (fileContent === '') {
-        console.log('Error analyzing file: Empty file content');
-        return ['', {}];
-    }
-    // Attempt to parse as JSON
-    try {
-        const jsonData = JSON.parse(fileContent);
-        return ['json', jsonData];
-    } catch (jsonError) {
-        // Attempt to parse as HCL
-        try {
-            const parsed = HCL.parse(fileContent);
-            const jsonData = JSON.parse(parsed);
-            return ['hcl', jsonData];
-        } catch (hclErr) {
-            console.log(`Error analyzing file: ${hclErr}`);
-            // Attempt to parse as TOML
-            try {
-                temp = toml.parse(fileContent);
-                return ['toml', temp];
-            } catch (tomlErr) {
-                // Attempt to parse as YAML
-                try {
-                    temp = yaml.load(fileContent);
-                    return ['yaml', temp];
-                } catch (yamlErr) {
-                    console.log(`Error analyzing file: ${yamlErr}`);
-                    console.log(`Error analyzing file: Invalid configuration file format`);
-                    return ['', {}];
-                }
-            }
-        }
+        resultsJSONFile: filepath.join(output, "/results.json")
     }
 }
 
@@ -124,7 +52,7 @@ async function main() {
     let enableJobsSummary = process.env.INPUT_ENABLE_JOBS_SUMMARY;
     const commentsWithQueries = process.env.INPUT_COMMENTS_WITH_QUERIES;
     const excludedColumnsForCommentsWithQueries = process.env.INPUT_EXCLUDED_COLUMNS_FOR_COMMENTS_WITH_QUERIES.split(',');
-    const outputPath = processOutputPath(process.env.INPUT_OUTPUT_PATH, process.env.INPUT_CONFIG_PATH);
+    const outputPath = processOutputPath(process.env.INPUT_OUTPUT_PATH);
     const outputFormats = process.env.INPUT_OUTPUT_FORMATS;
     const exitCode = process.env.KICS_EXIT_CODE
 

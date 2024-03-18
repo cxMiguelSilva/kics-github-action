@@ -4,7 +4,7 @@
 [![Latest Release](https://img.shields.io/github/v/release/checkmarx/kics-github-action)](https://github.com/checkmarx/kics-github-action/releases)
 [![Open Issues](https://img.shields.io/github/issues-raw/checkmarx/kics-github-action)](https://github.com/checkmarx/kics-github-action/issues)
 
-- [KICS GitHub Action](#kics-github-action)
+- [KICS Github Action](#kics-github-action)
   - [Integrate KICS into your GitHub workflows](#integrate-kics-into-your-github-workflows)
     - [Supported Platforms](#supported-platforms)
     - [Please find more info in the official website: <a href="https://kics.io">kics.io</a>](#please-find-more-info-in-the-official-website-kicsio)
@@ -67,9 +67,8 @@ It is as simple as running a CLI tool, making it easy to integrate into any proj
 #### Beta Features
 <img alt="Databricks" src="images/logo-databricks.png" width="200">&nbsp;&nbsp;&nbsp;
 <img alt="NIFCloud" src="images/logo-nifcloud.png" width="110">&nbsp;&nbsp;&nbsp;
-<img alt="TencentCloud" src="images/logo-tencentcloud.png" width="180">&nbsp;&nbsp;&nbsp;
 
-In order to run the Databricks, NIFCloud and TencentCloud queries, use the `--experimental-queries` flag when running KICS.
+In order to run the Databricks and NIFCloud queries, use the `--experimental-queries` flag when running KICS.
 
 Official documentation page <a href="https://docs.kics.io">docs.kics.io</a>
 
@@ -297,7 +296,7 @@ jobs:
           cat results-dir/results.sarif
           cat results-dir/results.json
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: results-dir/results.sarif
 ```
@@ -348,7 +347,7 @@ jobs:
           path: 'terraform'
           config_path: ./kics.config
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: results-dir/results.sarif
 ```
